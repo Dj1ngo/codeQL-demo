@@ -2,11 +2,11 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '0 0 * * 0' # Weekly scan
 
 jobs:
   analyze:
@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [c]
+        language: [ 'cpp' ]
 
     steps:
     - name: Checkout repository
@@ -31,11 +31,15 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
+        queries: +security-and-quality # Use all security & quality queries
 
-    - name: Build
-      run: |
-        mkdir build
-        gcc -c vulnerable.c -o build/vulnerable.o
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
+
+    - name: Manual Build
+      run: |
+        make
+
